@@ -1,0 +1,7 @@
+{
+  "employees": [
+    {"id": 1, "name": "何彦彬", "department": "主管"},
+    {"id": 2, "name": "李四", "department": "部门B"},
+    {"id": 3, "name": "王五", "department": "部门A"}
+  ]
+}

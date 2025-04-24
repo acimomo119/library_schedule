@@ -1,0 +1,7 @@
+{
+  "departments": [
+    {"id": 1, "name": "主管"},
+    {"id": 2, "name": "部门B"},
+    {"id": 3, "name": "部门C"}
+  ]
+}

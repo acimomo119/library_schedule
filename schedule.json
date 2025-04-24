@@ -1,0 +1,19 @@
+{
+  "schedules": [
+    {
+      "employeeId": 1,
+      "date": "2023-01-01",
+      "shift": "早班"
+    },
+    {
+      "employeeId": 2,
+      "date": "2023-01-01",
+      "shift": "中班"
+    },
+    {
+      "employeeId": 3,
+      "date": "2023-01-01",
+      "shift": "晚班"
+    }
+  ]
+}

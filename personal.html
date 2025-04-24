@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人班表浏览</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .employee-select {
+            margin: 20px 0;
+            text-align: center;
+        }
+        select {
+            padding: 8px;
+            font-size: 16px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+        .calendar {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .calendar th, .calendar td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        .calendar th {
+            background-color: #f2f2f2;
+        }
+        .date {
+            font-weight: bold;
+        }
+        .weekday {
+            color: #666;
+        }
+        .shift {
+            color: #2196F3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>个人班表浏览</h1>
+        <div class="employee-select">
+            <select id="employeeSelect">
+                <option value="">请选择员工</option>
+            </select>
+        </div>
+        <table class="calendar">
+            <thead>
+                <tr>
+                    <th>周一</th>
+                    <th>周二</th>
+                    <th>周三</th>
+                    <th>周四</th>
+                    <th>周五</th>
+                    <th>周六</th>
+                    <th>周日</th>
+                </tr>
+            </thead>
+            <tbody id="calendarBody">
+                <!-- 日历表格将通过JavaScript动态生成 -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // 从employee.json加载员工数据
+        fetch('employee.json')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                const select = document.getElementById('employeeSelect');
+                data.employees.forEach(employee => {
+                    const option = document.createElement('option');
+                    option.value = employee.id;
+                    option.textContent = employee.name;
+                    select.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error('Error loading employee data:', error);
+            });
+
+        // 生成当月日历
+        function generateCalendar() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = now.getMonth();
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            
+            let calendarHTML = '';
+            let date = 1;
+            
+            for (let i = 0; i < 6; i++) {
+                calendarHTML += '<tr>';
+                
+                for (let j = 0; j < 7; j++) {
+                    if (i === 0 && j < firstDay.getDay() - 1) {
+                        calendarHTML += '<td></td>';
+                    } else if (date > lastDay.getDate()) {
+                        calendarHTML += '<td></td>';
+                    } else {
+                        calendarHTML += `
+                            <td>
+                                <div class="date">${date}</div>
+                                <div class="shift"></div>
+                            </td>
+                        `;
+                        date++;
+                    }
+                }
+                
+                calendarHTML += '</tr>';
+            }
+            
+            document.getElementById('calendarBody').innerHTML = calendarHTML;
+        }
+        
+        function getWeekday(dayIndex) {
+            const weekdays = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
+            return weekdays[dayIndex];
+        }
+        
+        // 初始化日历
+        generateCalendar();
+    </script>
+</body>
+</html>

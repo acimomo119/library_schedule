@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>排班管理</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .department-select {
+            margin: 20px 0;
+            text-align: center;
+        }
+        select {
+            padding: 8px;
+            font-size: 16px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+        .schedule-table {
+            width: 100%;
+            border-collapse: collapse;
+            overflow-x: auto;
+            display: block;
+        }
+        .schedule-table th, .schedule-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+            min-width: 40px;
+        }
+        .schedule-table th {
+            background-color: #f2f2f2;
+        }
+        .employee-name {
+            font-weight: bold;
+            text-align: left;
+        }
+        .date-row {
+            background-color: #e9f5ff;
+        }
+        .weekday-row {
+            background-color: #f0f0f0;
+        }
+        .action-buttons {
+            margin: 20px 0;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        .action-button {
+            padding: 8px 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .action-button:hover {
+            background-color: #45a049;
+        }
+        .shift-buttons {
+            margin: 10px 0;
+            display: none;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .shift-button {
+            padding: 8px 16px;
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .shift-button:hover {
+            background-color: #0b7dda;
+        }
+        .shift-button.active {
+            background-color: #0b7dda;
+            font-weight: bold;
+        }
+        .confirm-buttons {
+            margin: 10px 0;
+            display: none;
+            gap: 10px;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>排班管理</h1>
+        <div class="department-select">
+            <select id="departmentSelect">
+                <option value="">请选择区域</option>
+            </select>
+        </div>
+        <table class="schedule-table">
+            <thead>
+                <tr id="dateRow">
+                    <th>姓名</th>
+                    <!-- 日期行将通过JavaScript动态生成 -->
+                </tr>
+                <tr id="weekdayRow">
+                    <th></th>
+                    <!-- 星期行将通过JavaScript动态生成 -->
+                </tr>
+            </thead>
+            <tbody id="scheduleBody">
+                <!-- 排班表格将通过JavaScript动态生成 -->
+            </tbody>
+        </table>
+        
+        <div class="action-buttons">
+            <button id="scheduleBtn" class="action-button">排班</button>
+            <button id="swapBtn" class="action-button">换班</button>
+            <button id="leaveBtn" class="action-button">请假</button>
+            <button id="specialBtn" class="action-button">专项</button>
+            <button id="cancelBtn" class="action-button">取消</button>
+        </div>
+        
+        <div id="shiftButtons" class="shift-buttons">
+            <button class="shift-button" data-shift="早">早</button>
+            <button class="shift-button" data-shift="中">中</button>
+            <button class="shift-button" data-shift="晚">晚</button>
+            <button class="shift-button" data-shift="长早">长早</button>
+            <button class="shift-button" data-shift="长晚">长晚</button>
+            <button class="shift-button" data-shift="休">休</button>
+        </div>
+        
+        <div id="confirmButtons" class="confirm-buttons">
+            <button id="confirmBtn" class="action-button">确认</button>
+            <button id="cancelConfirmBtn" class="action-button">取消</button>
+        </div>
+    </div>
+
+    <script>
+        // 从department.json加载部门数据
+        fetch('department.json')
+            .then(response => response.json())
+            .then(data => {
+                const select = document.getElementById('departmentSelect');
+                data.departments.forEach(department => {
+                    const option = document.createElement('option');
+                    option.value = department.id;
+                    option.textContent = department.name;
+                    select.appendChild(option);
+                });
+            });
+
+        // 生成日期和星期行
+        function generateDateAndWeekdayRows() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = now.getMonth();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            
+            let dateHTML = '';
+            let weekdayHTML = '<th></th>';
+            
+            for (let day = 1; day <= daysInMonth; day++) {
+                const date = new Date(year, month, day);
+                const weekday = date.getDay();
+                const weekdayNames = ['日', '一', '二', '三', '四', '五', '六'];
+                
+                dateHTML += `<th>${day}</th>`;
+                weekdayHTML += `<th>${weekdayNames[weekday]}</th>`;
+            }
+            
+            document.getElementById('dateRow').innerHTML += dateHTML;
+            document.getElementById('weekdayRow').innerHTML = weekdayHTML;
+        }
+        
+        // 初始化表格
+        generateDateAndWeekdayRows();
+        
+        // 排班按钮点击事件
+        document.getElementById('scheduleBtn').addEventListener('click', function() {
+            document.getElementById('shiftButtons').style.display = 'flex';
+            document.getElementById('confirmButtons').style.display = 'flex';
+            
+            // 设置表格单元格可点击
+            const cells = document.querySelectorAll('#scheduleBody td');
+            cells.forEach(cell => {
+                cell.addEventListener('click', function() {
+                    const selectedShift = document.querySelector('.shift-button.active');
+                    if (selectedShift) {
+                        this.textContent = selectedShift.dataset.shift;
+                    }
+                });
+            });
+        });
+        
+        // 班次按钮点击事件
+        document.querySelectorAll('.shift-button').forEach(button => {
+            button.addEventListener('click', function() {
+                document.querySelectorAll('.shift-button').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                this.classList.add('active');
+            });
+        });
+        
+        // 确认按钮点击事件
+        document.getElementById('confirmBtn').addEventListener('click', function() {
+            // 保存排班数据到schedule.json
+            alert('排班已保存');
+            resetUI();
+        });
+        
+        // 取消确认按钮点击事件
+        document.getElementById('cancelConfirmBtn').addEventListener('click', resetUI);
+        
+        // 重置UI状态
+        function resetUI() {
+            document.getElementById('shiftButtons').style.display = 'none';
+            document.getElementById('confirmButtons').style.display = 'none';
+            document.querySelectorAll('.shift-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+        }
+    </script>
+</body>
+</html>
