@@ -197,9 +197,8 @@
                 
                 Promise.all([
                     sha256(username),
-                    sha256(password),
-                    sha256('主管')
-                ]).then(([usernameHash, passwordHash, roleHash]) => {
+                    sha256(password)
+                ]).then(([usernameHash, passwordHash]) => {
                     fetch('users.json')
                         .then(response => {
                             if (!response.ok) throw new Error('Network response was not ok');
@@ -208,14 +207,13 @@
                         .then(usersData => {
                             const user = usersData.users.find(u => 
                                 u.usernameHash === usernameHash && 
-                                u.passwordHash === passwordHash && 
-                                u.roleHash === roleHash);
+                                u.passwordHash === passwordHash);
                             
                             if (user) {
                                 // 登录成功
                                 const header = document.querySelector('.header');
                                 const userInfo = document.createElement('span');
-                                userInfo.innerHTML = `${username} (主管) <span style="cursor:pointer; color: #3498db;" onclick="logout()">[退出]</span>`;
+                                userInfo.innerHTML = `${username} <span style="cursor:pointer; color: #3498db;" onclick="logout()">[退出]</span>`;
                                 header.insertBefore(userInfo, header.querySelector('h1'));
                                 
                                 // 移除登录按钮
