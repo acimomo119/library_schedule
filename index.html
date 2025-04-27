@@ -213,7 +213,9 @@
                                 // 登录成功
                                 const header = document.querySelector('.header');
                                 const userInfo = document.createElement('span');
-                                userInfo.innerHTML = `${username} <span style="cursor:pointer; color: #3498db;" onclick="logout()">[退出]</span>`;
+                                // 直接读取权限
+                                const role = user.role || '未知权限';
+                                userInfo.innerHTML = `${username} (${role}) <span style="cursor:pointer; color: #3498db;" onclick="logout()">[退出]</span>`;
                                 header.insertBefore(userInfo, header.querySelector('h1'));
                                 
                                 // 移除登录按钮
