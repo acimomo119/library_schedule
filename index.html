@@ -104,34 +104,55 @@
                 case 'personal':
                     titleElement.textContent = '个人班表浏览';
                     fetch('personal.html')
-                        .then(response => response.text())
+                        .then(response => {
+                            if (!response.ok) throw new Error('Network response was not ok');
+                            return response.text();
+                        })
                         .then(html => {
                             const parser = new DOMParser();
                             const doc = parser.parseFromString(html, 'text/html');
                             const content = doc.querySelector('.container');
                             contentArea.innerHTML = content ? content.outerHTML : '内容加载失败';
+                        })
+                        .catch(error => {
+                            console.error('Error loading personal.html:', error);
+                            contentArea.innerHTML = '加载内容时出错';
                         });
                     break;
                 case 'department':
                     titleElement.textContent = '区域排班浏览';
                     fetch('department.html')
-                        .then(response => response.text())
+                        .then(response => {
+                            if (!response.ok) throw new Error('Network response was not ok');
+                            return response.text();
+                        })
                         .then(html => {
                             const parser = new DOMParser();
                             const doc = parser.parseFromString(html, 'text/html');
                             const content = doc.querySelector('.container');
                             contentArea.innerHTML = content ? content.outerHTML : '内容加载失败';
+                        })
+                        .catch(error => {
+                            console.error('Error loading department.html:', error);
+                            contentArea.innerHTML = '加载内容时出错';
                         });
                     break;
                 case 'management':
                     titleElement.textContent = '排班管理';
                     fetch('management.html')
-                        .then(response => response.text())
+                        .then(response => {
+                            if (!response.ok) throw new Error('Network response was not ok');
+                            return response.text();
+                        })
                         .then(html => {
                             const parser = new DOMParser();
                             const doc = parser.parseFromString(html, 'text/html');
                             const content = doc.querySelector('.container');
                             contentArea.innerHTML = content ? content.outerHTML : '内容加载失败';
+                        })
+                        .catch(error => {
+                            console.error('Error loading management.html:', error);
+                            contentArea.innerHTML = '加载内容时出错';
                         });
                     break;
                 default:
@@ -176,23 +197,37 @@
                 
                 sha256(password).then(passwordHash => {
                     fetch('users.json')
-                        .then(response => response.json())
+                        .then(response => {
+                            if (!response.ok) throw new Error('Network response was not ok');
+                            return response.json();
+                        })
                         .then(usersData => {
-                            const user = usersData.users.find(u => 
-                                u.usernameHash === await sha256(username) && u.passwordHash === passwordHash && u.roleHash === await sha256(role));
-                            
-                            if (user) {
-                                // 登录成功
-                                const loginButton = document.querySelector('.login-button');
-                                loginButton.innerHTML = `${user.username} (${user.role}) <span style="cursor:pointer" onclick="logout()">[退出]</span>`;
-                                loginButton.style.backgroundColor = '#4CAF50';
-                                loginButton.onclick = null;
+                            Promise.all([
+                                sha256(username),
+                                sha256('admin')
+                            ]).then(([usernameHash, roleHash]) => {
+                                const user = usersData.users.find(u => 
+                                    u.usernameHash === usernameHash && 
+                                    u.passwordHash === passwordHash && 
+                                    u.roleHash === roleHash);
                                 
-                                // 移除登录模态框
-                                document.querySelector('.modal').remove();
-                            } else {
-                                alert('用户名或密码错误');
-                            }
+                                if (user) {
+                                    // 登录成功
+                                    const loginButton = document.querySelector('.login-button');
+                                    loginButton.innerHTML = `${user.username} (${user.role}) <span style="cursor:pointer" onclick="logout()">[退出]</span>`;
+                                    loginButton.style.backgroundColor = '#4CAF50';
+                                    loginButton.onclick = null;
+                                    
+                                    // 移除登录模态框
+                                    document.querySelector('.modal').remove();
+                                } else {
+                                    alert('用户名或密码错误');
+                                }
+                            });
+                        })
+                        .catch(error => {
+                            console.error('Error loading users.json:', error);
+                            alert('登录失败，请稍后再试');
                         });
                 });
             });
