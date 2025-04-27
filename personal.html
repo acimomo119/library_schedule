@@ -58,7 +58,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>个人班表浏览</h1>
+        <!-- 移除大标题 -->
         <div class="employee-select">
             <select id="employeeSelect">
                 <option value="">请选择员工</option>
@@ -115,11 +115,12 @@
             let calendarHTML = '';
             let date = 1;
             
+            // 修正日历生成逻辑
             for (let i = 0; i < 6; i++) {
                 calendarHTML += '<tr>';
                 
                 for (let j = 0; j < 7; j++) {
-                    if (i === 0 && j < firstDay.getDay() - 1) {
+                    if (i === 0 && j < firstDay.getDay()) {
                         calendarHTML += '<td></td>';
                     } else if (date > lastDay.getDate()) {
                         calendarHTML += '<td></td>';
@@ -139,14 +140,18 @@
             
             document.getElementById('calendarBody').innerHTML = calendarHTML;
         }
-        
-        function getWeekday(dayIndex) {
-            const weekdays = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
-            return weekdays[dayIndex];
-        }
-        
+
         // 初始化日历
         generateCalendar();
+
+        // 添加员工选择事件监听
+        document.getElementById('employeeSelect').addEventListener('change', function() {
+            const selectedEmployeeId = this.value;
+            if (selectedEmployeeId) {
+                // 这里可以添加获取员工班表的逻辑
+                console.log('Selected employee ID:', selectedEmployeeId);
+            }
+        });
     </script>
 </body>
 </html>
