@@ -3,7 +3,7 @@
         {
             "usernameHash": "7375fa5fe4b9df4d89b8ca028feb92297d06f69ed98645f5effe0ac0a452508b",
             "passwordHash": "595499f88bb033d0e0da3e20b6e9756b7458ab6c22c40fbc394464ecf9610f26",
-            "roleHash": "e19796712f1cf0de97d54a6617d8e8fc4f451b195268cd9f149129c90bb959f0"
+            "role": "管理员"
         }
     ]
 }
